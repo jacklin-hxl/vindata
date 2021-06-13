@@ -1,5 +1,7 @@
 import sys
-from processData import run
+
+from numpy import e
+from processData import run, runThree, runTow
 
 from PyQt5.QtWidgets import QApplication,QMainWindow,QFileDialog
 from ui import Ui_Form
@@ -21,13 +23,22 @@ class MainUi(QMainWindow,QFileDialog,Ui_Form):
         self.zonshuju_textEdit.setText(filedir)
 
     def confirm(self):
-        self.label.setText("数据处理中, 可以先摸下木木呦 ^-^")
+        
+        data_type = self.type_ComboBox.currentText()
+        currentDate = self.textEdit.toPlainText()
         summaryDataFile = self.mubanwenjian_textEdit.toPlainText()
         summaryDataSheet = self.mubansheet_textEdit.toPlainText()
         totalDataFile = self.zonshuju_textEdit.toPlainText()
         totalDataSheet = self.zonshujusheet_textEdit.toPlainText()
-        run(summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet)
-        self.label.setText("数据已完成，记得亲下木木呦 ^-^")
+        yDataFile = self.qunianfile_textEdit.toPlainText()
+        yDataSheet = self.quniansheet_textEdit.toPlainText()
+        if data_type == "sku":
+            run(summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, currentDate)
+        elif data_type == "品系":
+            runTow(summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, yDataFile, yDataSheet)
+        elif data_type == "业态品类":
+            runThree(summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, yDataFile, yDataSheet)
+        self.textBrowser.setText("数据已完成，记得亲下木木呦 ^-^")
 
 
 def main():

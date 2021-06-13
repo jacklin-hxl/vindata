@@ -1,2 +1,5 @@
 .vscode
 *.exe
+__pycache__
+*pyc*
+tmp.xlsx

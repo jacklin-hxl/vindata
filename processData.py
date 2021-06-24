@@ -77,12 +77,13 @@ def run(summaryDataFile=None, summaryDataSheet=None, totalDataFile=None, totalDa
 
         summaryData = summaryData.dropna(axis=0, how="all")
         result = pd.merge(summaryData,totalData,on="id",how='left')
-        result = result.reindex(columns=[list(result)[0],list(result)[1],"支付金额", "支付件数", "到手价", "商品访客数", "转化率", "客单价", "成交人数", "UV价值"])
+        result = result.reindex(columns=[list(result)[0],list(result)[1],"支付金额", "支付件数", "到手价", "商品访客数", "转化率", "客单价", "成交人数", "人均购买件数","UV价值"])
         
         result[result.columns[1]] = result[result.columns[1]].map(str)
         result['客单价'] = result["支付金额"] / result["成交人数"]
         result['转化率'] = result["成交人数"] / result["商品访客数"]
         result["到手价"] = result["支付金额"] / result["支付件数"]
+        result["人均购买件数"] = result["支付件数"] / result["成交人数"]
         result["UV价值"] = result["支付金额"] / result["商品访客数"]
 
         resultSum = result.sum()
@@ -101,6 +102,7 @@ def run(summaryDataFile=None, summaryDataSheet=None, totalDataFile=None, totalDa
         result['转化率'] = result["转化率"].apply(lambda x: format(x,'.2%'))
         result['客单价'] = result['客单价'].round(decimals=2)
         result["UV价值"] = result["UV价值"].round(decimals=2)
+        result["人均购买件数"] = result["人均购买件数"].round(decimals=2)
         result["到手价"] = result["到手价"].round(decimals=2)
         result['id'] = result['id'].map(str)
 
@@ -120,16 +122,16 @@ def run(summaryDataFile=None, summaryDataSheet=None, totalDataFile=None, totalDa
 
 
 def runTow(summaryDataFile=None, summaryDataSheet=None, totalDataFile=None, totalDataSheet=None, yDataFile=None, yDataSheet=None):
-    # summaryDataFile = summaryDataFile.replace("file:///","")
-    # totalDataFile = totalDataFile.replace("file:///","")
-    # yDataFile = yDataFile.replace("file:///","")
+    summaryDataFile = summaryDataFile.replace("file:///","")
+    totalDataFile = totalDataFile.replace("file:///","")
+    yDataFile = yDataFile.replace("file:///","")
 
-    summaryDataFile = "D:\\tmp\\数据源.xlsx"
-    summaryDataSheet = "1"
-    totalDataFile = "D:\\tmp\\2021年维达原始数据.xlsx"
-    totalDataSheet = "2021汇总"
-    yDataFile = "D:\\tmp\\2020年维达原始数据.xlsx"
-    yDataSheet = "2020汇总"
+    # summaryDataFile = "D:\\tmp\\数据源.xlsx"
+    # summaryDataSheet = "1"
+    # totalDataFile = "D:\\tmp\\2021年维达原始数据.xlsx"
+    # totalDataSheet = "2021汇总"
+    # yDataFile = "D:\\tmp\\2020年维达原始数据.xlsx"
+    # yDataSheet = "2020汇总"
 
     sumDataSheet = summaryDataSheet + "汇总"
     currentDate = str(datetime.datetime.now().year)
@@ -188,7 +190,7 @@ def runTow(summaryDataFile=None, summaryDataSheet=None, totalDataFile=None, tota
 
         summaryData = summaryData.dropna(axis=0, how="all")
         result = pd.merge(summaryData,totalData,on="id",how='left')
-        result = result.reindex(columns=[list(result)[0],list(result)[1], list(result)[2], "支付金额", "支付件数", "到手价", "商品访客数", "转化率", "客单价", "成交人数", "UV价值"])
+        result = result.reindex(columns=[list(result)[0],list(result)[1], list(result)[2], "支付金额", "支付件数", "到手价", "商品访客数", "转化率", "客单价", "成交人数", "人均购买件数", "UV价值"])
         oldName = list(result)[2]
         newName = oldName + "(" + i[1] + ")"
         result.rename(columns={oldName: newName},inplace=True)
@@ -198,6 +200,7 @@ def runTow(summaryDataFile=None, summaryDataSheet=None, totalDataFile=None, tota
         result['转化率'] = result["成交人数"] / result["商品访客数"]
         result["到手价"] = result["支付金额"] / result["支付件数"]
         result["UV价值"] = result["支付金额"] / result["商品访客数"]
+        result["人均购买件数"] = result["支付件数"] / result["成交人数"]
         result["品系"] = result["品系"].fillna(method='pad')
 
         # result['转化率'] = result["转化率"].apply(lambda x: format(x,'.2%'))
@@ -230,6 +233,7 @@ def runTow(summaryDataFile=None, summaryDataSheet=None, totalDataFile=None, tota
         totalResult['转化率'] = totalResult["转化率"].replace(np.nan, 0)
         totalResult['转化率'] = totalResult["转化率"].apply(lambda x: format(x,'.2%'))
         totalResult['客单价'] = totalResult['客单价'].round(decimals=2)
+        result["人均购买件数"] = result["人均购买件数"].round(decimals=2)
         totalResult["UV价值"] = totalResult["UV价值"].round(decimals=2)
         totalResult["到手价"] = totalResult["到手价"].round(decimals=2)
 

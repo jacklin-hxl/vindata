@@ -3,3 +3,5 @@
 __pycache__/
 *pyc*
 tmp.xlsx
+build/
+*.spec

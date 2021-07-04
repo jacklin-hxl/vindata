@@ -87,16 +87,34 @@ def run(summaryDataFile=None, summaryDataSheet=None, totalDataFile=None, totalDa
         result["UV价值"] = result["支付金额"] / result["商品访客数"]
 
         resultSum = result.sum()
+        # 支付金额
         totalAmount = resultSum[2]
+
+        # 支付件数
         totalNumber = resultSum[3]
+
+        # 到手价
         averagePrice = totalAmount / totalNumber
+
+        #商品访客数
         visitors = resultSum[5]
-        conversionRate = resultSum[-2] / resultSum[5]
-        unitPrice = resultSum[2] / resultSum[-2]
-        payNumber = resultSum[-2]
+
+        # 转化率
+        conversionRate = resultSum[-3] / resultSum[5]
+
+        # 客单价
+        unitPrice = resultSum[2] / resultSum[-3]
+
+        # 成交人数
+        payNumber = resultSum[-3]
+
+        # 人均购买件数
+        RJNumber = totalNumber / payNumber
+
+        # UV价值
         UVWorth = totalAmount / visitors
 
-        summaryValue = ["汇总", "", totalAmount, totalNumber, averagePrice, visitors, conversionRate, unitPrice, payNumber, UVWorth]
+        summaryValue = ["汇总", "", totalAmount, totalNumber, averagePrice, visitors, conversionRate, unitPrice, payNumber, RJNumber, UVWorth]
         result.loc[result.shape[0]] = dict(zip(result.columns, summaryValue))
 
         result['转化率'] = result["转化率"].apply(lambda x: format(x,'.2%'))

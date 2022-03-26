@@ -35,7 +35,7 @@ class MainUi(QMainWindow,QFileDialog,Ui_Form):
         if data_type == "sku":
             run(summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, currentDate)
         elif data_type == "品系":
-            runTow(summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, yDataFile, yDataSheet)
+            runTow(summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, yDataFile, yDataSheet, currentDate)
         elif data_type == "业态品类":
             runThree(summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, yDataFile, yDataSheet)
         self.textBrowser.setText("数据已完成，记得亲下木木呦 ^-^")

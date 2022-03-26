@@ -139,20 +139,23 @@ def run(summaryDataFile=None, summaryDataSheet=None, totalDataFile=None, totalDa
     writer.save()
 
 
-def runTow(summaryDataFile=None, summaryDataSheet=None, totalDataFile=None, totalDataSheet=None, yDataFile=None, yDataSheet=None):
+def runTow(summaryDataFile=None, summaryDataSheet=None, totalDataFile=None, totalDataSheet=None, yDataFile=None, yDataSheet=None,
+           currentDate='2022'):
     summaryDataFile = summaryDataFile.replace("file:///","")
     totalDataFile = totalDataFile.replace("file:///","")
     yDataFile = yDataFile.replace("file:///","")
 
-    # summaryDataFile = "D:\\tmp\\数据源.xlsx"
-    # summaryDataSheet = "1"
-    # totalDataFile = "D:\\tmp\\2021年维达原始数据.xlsx"
-    # totalDataSheet = "2021汇总"
-    # yDataFile = "D:\\tmp\\2020年维达原始数据.xlsx"
-    # yDataSheet = "2020汇总"
+    # summaryDataFile = "./test/2.xlsx"
+    # summaryDataSheet = "4"
+    # totalDataFile = "./test/2022.xlsx"
+    # totalDataSheet = "2022汇总"
+    # yDataFile = "./test/2021.xlsx"
+    # yDataSheet = "2021汇总"
 
     sumDataSheet = summaryDataSheet + "汇总"
-    currentDate = str(datetime.datetime.now().year)
+
+    if currentDate == "":
+        currentDate = str(datetime.datetime.now().year)
 
     LDate = [1, 3, 5, 7, 8, 10, 12]
     currentCols = [0, 1, 2]
@@ -181,6 +184,8 @@ def runTow(summaryDataFile=None, summaryDataSheet=None, totalDataFile=None, tota
     if d1[1].split(".")[1] == "31":
         if int(d1[1].split(".")[0]) - 1 not in LDate:
             mEndDate = currentDate + "." + str(int(d1[1].split(".")[0]) - 1) + "." + "30"
+    mEndDate = '2021.12.31'
+    mStartDate = '2021.12.1'
     mDateList = getDateList(start=mStartDate, end=mEndDate)
     times.append((mDateList, "上月"))
 

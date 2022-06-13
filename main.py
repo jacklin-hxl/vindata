@@ -1,6 +1,5 @@
 import sys
 
-from numpy import e
 from processData import run, runThree, runTow
 
 from PyQt5.QtWidgets import QApplication,QMainWindow,QFileDialog

@@ -3,7 +3,7 @@ import datetime
 
 import pandas as pd
 import numpy as np
-from common import getDateList
+# from common import getDateList
 from collections import Counter
 
 
@@ -39,7 +39,7 @@ def run(summaryDataFile=None, summaryDataSheet=None, totalDataFile=None, totalDa
         d1 = re.findall(r"(\d*\.\d*)日",oldProcessDate)
         startDate = currentDate + "." + d1[0]
         endDate = currentDate + "." + d1[1]
-        dateList = getDateList(start=startDate, end=endDate)
+        # dateList = getDateList(start=startDate, end=endDate)
 
         d2 = re.findall(r"(\d*)点",oldProcessDate)
 
@@ -385,4 +385,4 @@ def runThree(summaryDataFile=None, summaryDataSheet=None, totalDataFile=None, to
     writer.save()
 
 if __name__ == "__main__":
-    runTow()
+    run()

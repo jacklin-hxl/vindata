@@ -1,5 +1,6 @@
 import sys
 
+from handle import Sku
 from processData import run, runThree, runTow
 
 from PyQt5.QtWidgets import QApplication,QMainWindow,QFileDialog
@@ -32,7 +33,9 @@ class MainUi(QMainWindow,QFileDialog,Ui_Form):
         yDataFile = self.qunianfile_textEdit.toPlainText()
         yDataSheet = self.quniansheet_textEdit.toPlainText()
         if data_type == "sku":
-            run(summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, currentDate)
+            # run(summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, currentDate)
+            sku = Sku(currentDate, summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet)
+            sku.start()
         elif data_type == "品系":
             runTow(summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, yDataFile, yDataSheet, currentDate)
         elif data_type == "业态品类":

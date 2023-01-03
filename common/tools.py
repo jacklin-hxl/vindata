@@ -17,7 +17,10 @@ class DateRange:
         self.end = datetime.datetime.strptime(end, "%Y.%m.%d").strftime("%Y%m%d")
 
     def get_range(self):
-        return [i for i in self.__generator()]
+        tmp = list(pd.date_range(start=self.start, end=self.end))
+        dateList = [i._date_repr.replace("-", "") for i in tmp]
+        dateList = list(map(int, dateList))
+        return dateList
 
     def __generator(self):
         cur = self.start
@@ -33,5 +36,5 @@ class DateRange:
 if __name__ == '__main__':
 
     # print([i for i in get_date_range("20220801", "20220910")])
-    a = DateRange("2022.3.9", "2022.3.11")
-    print(a.get_range())
+    a = DateRange("2022.12.22", "2022.12.23")
+    print(getDateList("2022.12.22", "2022.12.23"))

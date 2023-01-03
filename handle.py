@@ -195,9 +195,9 @@ class Sku(Base):
 
 
 if __name__ == '__main__':
-    summary_file = "./test/Q1数据.xlsx"
-    summary_sheet = "聚划算"
-    source_file = "./test/2022.xlsx"
+    summary_file = "./test/数据源.xlsx"
+    summary_sheet = "4"
+    source_file = "./test/2022年维达原始数据.xlsx"
     source_sheet = "2022汇总"
     sku = Sku('2022', summary_file, summary_sheet, source_file, source_sheet)
     sku.start()

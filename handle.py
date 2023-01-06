@@ -5,31 +5,38 @@ import numpy
 import pandas
 
 from common.tools import DateRange
+from common.logger import logger
 
 
 class Base:
 
+    def __init__(self, pv=None):
+        self.pv = pv
+
     @staticmethod
     def _read_excel(f, s):
-        print(f"读取数据中: 路径: [{f}] sheet: [{s}] ...")
+        logger.debug(f"读取数据中: 路径: [{f}] sheet: [{s}] ...")
         re = pandas.read_excel(io=f, sheet_name=s, dtype="object")
-        print(f"读取完成!!!")
+        logger.debug(f"读取完成!!!")
         return re
 
 class Sku(Base):
     RESULT_FILE_NAME = "./sku.xlsx"
 
     def __init__(self,
+                 pv=None,
                  year=None,
                  summary_file=None,
                  summary_sheet=None,
                  source_file=None,
                  source_sheet=None):
-
+        super().__init__(pv=pv)
         self.year = year
         self.summary_sheet = summary_sheet
         self.summary = self._read_excel(summary_file, summary_sheet)
+        self.pv[0] += 10
         self.source = self._read_excel(source_file, source_sheet)
+        self.pv[0] += 10
         self._range = None
         self.ans = []
 
@@ -40,15 +47,18 @@ class Sku(Base):
         """
         l, r = 0, 2
         times = self._amount()
+        step = 60 // times
         for i in range(times):
             self.work(l, r)
+            self.pv[0] += step
             l, r = l + 3, r + 3
         self.save()
+        self.pv[0] += 25
 
     def work(self, l, r):
         """
         聚合数据
-        :param l: id 的列数
+        :param l: id 的列数``
         :param r: 时间的 列数
         :return:
         """
@@ -56,7 +66,7 @@ class Sku(Base):
         cols = cols.copy()
         target = self.summary[cols]
         target = target.copy()
-        print(f"================ 处理 [{cols[1]}] ... =====================")
+        logger.debug(f"================ 处理 [{cols[1]}] ... =====================")
         target.rename(columns={cols[0]: "id"}, inplace=True)
         _range = self._parse_date_to_range(cols)
         result = self._merge(target, _range)
@@ -64,7 +74,7 @@ class Sku(Base):
         self._data_handle(result)
         result = result.fillna(0)
         self.ans.append(result)
-        print(f"*********************** 处理 [{cols[1]}] 完成!!! ***************************")
+        logger.debug(f"*********************** 处理 [{cols[1]}] 完成!!! ***************************")
 
     def save(self):
         """
@@ -72,7 +82,7 @@ class Sku(Base):
         :return:
         """
         if not os.path.exists(self.RESULT_FILE_NAME):
-            print(f"{self.RESULT_FILE_NAME} 文件不存在，创建文件中")
+            logger.debug(f"{self.RESULT_FILE_NAME} 文件不存在，创建文件中")
             f = open(self.RESULT_FILE_NAME, "w")
             f.close()
             df = pandas.DataFrame()
@@ -80,10 +90,11 @@ class Sku(Base):
         writer = pandas.ExcelWriter(self.RESULT_FILE_NAME, mode="a")
         startCol = 0
         for i in self.ans:
-            print(f"转存数据到 {self.RESULT_FILE_NAME} 中...")
+            logger.debug(f"转存数据到 {self.RESULT_FILE_NAME} 中...")
             i.to_excel(writer, sheet_name=self.summary_sheet, startcol=startCol, index=False)
             startCol += 12
         writer.save()
+        logger.debug("转存完成!!!")
 
     def _amount(self):
         amount = 0
@@ -100,14 +111,14 @@ class Sku(Base):
         :param source_sum: 源数据指定日期的不同id的相关数据之和
         :return:
         """
-        print("将 时间范围内的数据 进行汇总")
+        logger.debug("将 时间范围内的数据 进行汇总")
         source_sum = self._source_to_sum(_range)
 
         target = target.dropna(axis=0, how="all")
         result = pandas.merge(target, source_sum, on="id", how='left')
         colmuns = [list(result)[0], list(result)[1], "支付金额", "支付件数", "到手价", "商品访客数", "转化率", "客单价", "成交人数", "人均购买件数",
                    "UV价值"]
-        print("时间范围内的数据 汇总完成!!!")
+        logger.debug("时间范围内的数据 汇总完成!!!")
         return result.reindex(columns=colmuns)
 
     def _source_to_sum(self, range):
@@ -126,12 +137,12 @@ class Sku(Base):
         根据开始日期/结束日期 获取日期范围
         :return:
         """
-        print("获取时间范围")
+        logger.debug("获取时间范围")
         day = re.findall(r"(\d*\.\d*)日", target[1])
         start = self.year + "." + day[0]
         end = self.year + "." + day[1]
         date_range = DateRange(start, end).get_range()
-        print(f"时间范围: {date_range}")
+        logger.debug(f"时间范围: {date_range}")
         return date_range
 
     def _data_handle(self, cols):
@@ -145,14 +156,14 @@ class Sku(Base):
         :param cols:
         :return:
         """
-        print("计算 [客单价,转化率,到手价,人均购买件数,UV价值]")
+        logger.debug("计算 [客单价,转化率,到手价,人均购买件数,UV价值]")
         cols[cols.columns[1]] = cols[cols.columns[1]].map(str)
         cols['客单价'] = cols["支付金额"] / cols["成交人数"]
         cols['转化率'] = cols["成交人数"] / cols["商品访客数"]
         cols["到手价"] = cols["支付金额"] / cols["支付件数"]
         cols["人均购买件数"] = cols["支付件数"] / cols["成交人数"]
         cols["UV价值"] = cols["支付金额"] / cols["商品访客数"]
-        print("计算 [客单价,转化率,到手价,人均购买件数,UV价值] 完成")
+        logger.debug("计算 [客单价,转化率,到手价,人均购买件数,UV价值] 完成")
 
     def _all_handle(self, cols):
         """
@@ -160,7 +171,7 @@ class Sku(Base):
         :param cols:
         :return:
         """
-        print("计算 所有指标数据总和 ")
+        logger.debug("计算 所有指标数据总和 ")
         resultSum = cols.sum()
         # 支付金额
         totalAmount = resultSum[2]
@@ -192,7 +203,7 @@ class Sku(Base):
         summaryValue = ["汇总", "", totalAmount, totalNumber, averagePrice, visitors, conversionRate, unitPrice,
                         payNumber, RJNumber, UVWorth]
         cols.loc[cols.shape[0]] = dict(zip(cols.columns, summaryValue))
-        print("计算 所有指标数据总和 完成")
+        logger.debug("计算 所有指标数据总和 完成")
 
     def _format_data(self, cols):
         """
@@ -200,14 +211,14 @@ class Sku(Base):
         :param cols:
         :return:
         """
-        print("格式化数据")
+        logger.debug("格式化数据")
         cols['转化率'] = cols["转化率"].apply(lambda x: format(x, '.2%'))
         cols['客单价'] = cols['客单价'].round(decimals=2)
         cols["UV价值"] = cols["UV价值"].round(decimals=2)
         cols["人均购买件数"] = cols["人均购买件数"].round(decimals=2)
         cols["到手价"] = cols["到手价"].round(decimals=2)
         cols['id'] = cols['id'].map(str)
-        print("格式化数据 完成")
+        logger.debug("格式化数据 完成")
 
 if __name__ == '__main__':
     summary_file = "./test/数据源.xlsx"

@@ -7,3 +7,6 @@ build
 *.spec
 dist
 .idea
+*.log
+.idea/misc.xml
+.idea/dataProcess.iml

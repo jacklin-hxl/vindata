@@ -9,7 +9,7 @@ from handle import Sku
 from processData import run, runThree, runTow
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
-from new import Ui_Form
+from ui import Ui_Form
 import threading
 
 class MainUi(QMainWindow,QFileDialog,Ui_Form):
@@ -63,8 +63,6 @@ class MainUi(QMainWindow,QFileDialog,Ui_Form):
             self.action.start()
         elif data_type == "品系":
             runTow(summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, yDataFile, yDataSheet, currentDate)
-        elif data_type == "业态品类":
-            runThree(summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, yDataFile, yDataSheet)
 
 
 def worker(flag, currentDate, summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet):

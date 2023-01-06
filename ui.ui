@@ -219,11 +219,6 @@
      <string>品系</string>
     </property>
    </item>
-   <item>
-    <property name="text">
-     <string>业态品类</string>
-    </property>
-   </item>
   </widget>
   <widget class="QTextEdit" name="qunianfile_textEdit">
    <property name="geometry">

@@ -10,8 +10,8 @@ from common.logger import logger
 
 class Base:
 
-    def __init__(self, pv=None):
-        self.pv = pv
+    def __init__(self, flag=None):
+        self.flag = flag
 
     @staticmethod
     def _read_excel(f, s):
@@ -24,19 +24,19 @@ class Sku(Base):
     RESULT_FILE_NAME = "./sku.xlsx"
 
     def __init__(self,
-                 pv=None,
+                 flag=None,
                  year=None,
                  summary_file=None,
                  summary_sheet=None,
                  source_file=None,
                  source_sheet=None):
-        super().__init__(pv=pv)
+        super().__init__(flag=flag)
         self.year = year
         self.summary_sheet = summary_sheet
         self.summary = self._read_excel(summary_file, summary_sheet)
-        self.pv[0] += 10
+        self.flag[0] += 10
         self.source = self._read_excel(source_file, source_sheet)
-        self.pv[0] += 10
+        self.flag[0] += 10
         self._range = None
         self.ans = []
 
@@ -50,10 +50,10 @@ class Sku(Base):
         step = 60 // times
         for i in range(times):
             self.work(l, r)
-            self.pv[0] += step
+            self.flag[0] += step
             l, r = l + 3, r + 3
         self.save()
-        self.pv[0] += 25
+        self.flag[0] += 25
 
     def work(self, l, r):
         """

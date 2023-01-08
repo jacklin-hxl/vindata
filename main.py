@@ -6,7 +6,6 @@ from PyQt5.QtCore import QBasicTimer
 
 from common.logger import logger
 from handle import Sku, Strain
-from processData import run, runThree, runTow
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 from ui import Ui_Form

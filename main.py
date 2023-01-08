@@ -5,7 +5,7 @@ import traceback
 from PyQt5.QtCore import QBasicTimer
 
 from common.logger import logger
-from handle import Sku
+from handle import Sku, Strain
 from processData import run, runThree, runTow
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
@@ -58,18 +58,28 @@ class MainUi(QMainWindow,QFileDialog,Ui_Form):
         totalDataSheet = self.zonshujusheet_textEdit.toPlainText()
         yDataFile = self.qunianfile_textEdit.toPlainText()
         yDataSheet = self.quniansheet_textEdit.toPlainText()
+        is_do = self.checkBox.isChecked()
         if data_type == "sku":
-            self.action = threading.Thread(target=worker, args=(self.flag, currentDate, summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet))
+            self.action = threading.Thread(target=sku_worker, args=(self.flag, currentDate, summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet))
             self.action.start()
         elif data_type == "品系":
-            runTow(summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, yDataFile, yDataSheet, currentDate)
+            self.action = threading.Thread(target=strain_worker, args=(is_do, self.flag, currentDate, summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, yDataFile, yDataSheet))
+            self.action.start()
 
 
-def worker(flag, currentDate, summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet):
+def sku_worker(flag, currentDate, summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet):
     try:
         sku = Sku(flag, currentDate, summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet)
         sku.start()
-    except Exception :
+    except Exception:
+        logger.debug(traceback.format_exc())
+        flag[1] = False
+
+def strain_worker(is_do, flag, currentDate, summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, yDataFile, yDataSheet):
+    try:
+        starin = Strain(is_do, flag, currentDate, summaryDataFile, summaryDataSheet, totalDataFile, totalDataSheet, yDataFile, yDataSheet)
+        starin.start()
+    except Exception:
         logger.debug(traceback.format_exc())
         flag[1] = False
 

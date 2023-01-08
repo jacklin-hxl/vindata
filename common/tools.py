@@ -36,5 +36,5 @@ class DateRange:
 if __name__ == '__main__':
 
     # print([i for i in get_date_range("20220801", "20220910")])
-    a = DateRange("2022.12.22", "2022.12.23")
-    print(getDateList("2022.12.22", "2022.12.23"))
+    a = DateRange("2020.2.1", "2020.2.30")
+    print(getDateList("2020.2.1", "2020.2.29"))

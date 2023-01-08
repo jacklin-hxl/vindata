@@ -228,6 +228,7 @@ class Strain(Base):
     RESULT_FILE_NAME = "./strain.xlsx"
 
     def __init__(self,
+                 is_do=True,
                  flag=None,
                  year=None,
                  summary_file=None,
@@ -238,6 +239,7 @@ class Strain(Base):
                  old_sheet=None):
         logger.debug("=====================>>>>> 开始处理品类")
         super().__init__(flag=flag)
+        self.is_do = is_do
         if self.flag is None:
             self.flag = [0, False]
         self.year = year
@@ -259,8 +261,11 @@ class Strain(Base):
 
     def start(self):
         self.prepare()
+        self.flag[0] += 10
         self.work()
+        self.flag[0] += 50
         self.save()
+        self.flag[0] += 10
         logger.debug("处理品类完成 <<<<<=====================")
     def work(self):
         s = self.source
@@ -281,8 +286,8 @@ class Strain(Base):
         :return:
         """
         target = target.dropna(axis=0, how="all")
-        res = pandas.merge(target, _sum, on="id",how='left')
-        _col = [list(res)[0],list(res)[1], list(res)[2], "支付金额", "支付件数", "到手价", "商品访客数", "转化率", "客单价", "成交人数", "人均购买件数", "UV价值"]
+        res = pandas.merge(target, _sum, on="id", how='left')
+        _col = [list(res)[0], list(res)[1], list(res)[2], "支付金额", "支付件数", "到手价", "商品访客数", "转化率", "客单价", "成交人数", "人均购买件数", "UV价值"]
         res = res.reindex(columns=_col)
         old_name = list(res)[2]
         new_name = old_name + "(" + _date + ")"
@@ -291,25 +296,35 @@ class Strain(Base):
 
 
     def _all_handle(self, res_list):
-        HBData = pandas.merge(res_list[0], res_list[1], on=["id", "品系"])
-        TBData = pandas.merge(res_list[0], res_list[2], on=["id", "品系"])
+        num = 1
 
-        HBDataCol = ["品系", "id", list(HBData)[2]]
+        if self.is_do:
+            HBData = pandas.merge(res_list[0], res_list[1], on=["id", "品系"])
+            HBDataCol = ["品系", "id", list(HBData)[2]]
+            num = 2
+
+        TBData = pandas.merge(res_list[0], res_list[num], on=["id", "品系"])
         TBDataCol = ["品系", "id", list(TBData)[2]]
+
         for i in res_list[0].columns[3:]:
-            HBData[i + "环比"] = HBData[i + "_x"] / HBData[i + "_y"] - 1
-            HBData = HBData.replace([numpy.inf, -numpy.inf, numpy.nan], 0)
-            HBData[i + "环比"] = HBData[i + "环比"].apply(lambda x: format(x, '.2%'))
-            HBDataCol.append(i + "环比")
+            if self.is_do:
+                HBData[i + "环比"] = HBData[i + "_x"] / HBData[i + "_y"] - 1
+                HBData = HBData.replace([numpy.inf, -numpy.inf, numpy.nan], 0)
+                HBData[i + "环比"] = HBData[i + "环比"].apply(lambda x: format(x, '.2%'))
+                HBDataCol.append(i + "环比")
 
             TBData[i + "同比"] = TBData[i + "_x"] / TBData[i + "_y"] - 1
             TBData = TBData.replace([numpy.inf, -numpy.inf, numpy.nan], 0)
             TBData[i + "同比"] = TBData[i + "同比"].apply(lambda x: format(x, '.2%'))
             TBDataCol.append(i + "同比")
 
-        HBData = HBData.reindex(columns=HBDataCol)
         TBData = TBData.reindex(columns=TBDataCol)
-        self.HTB_list = [HBData, TBData]
+        if self.is_do:
+            HBData = HBData.reindex(columns=HBDataCol)
+            self.HTB_list = [HBData, TBData]
+        else:
+            self.HTB_list = [TBData]
+
 
     def save(self):
         if not os.path.exists(self.RESULT_FILE_NAME):
@@ -332,7 +347,10 @@ class Strain(Base):
             startCol += 11
 
         startCol = 0
-        sheet_name = self.summary_sheet + "的环比&同比"
+        if self.is_do:
+            sheet_name = self.summary_sheet + "的环比&同比"
+        else:
+            sheet_name = self.summary_sheet + "的同比"
         for i in self.HTB_list:
             i.to_excel(writer, sheet_name=sheet_name, startcol=startCol, index=False)
             startCol += 13
@@ -421,12 +439,15 @@ class Strain(Base):
 
         day = re.findall(r"(\d*\.\d*)", self.summary.columns[2])
 
-        logger.debug("上个月时间范围")
-        old_month_start_date = self.year + "." + str(int(day[0].split(".")[0]) - 1) + "." + day[0].split(".")[1]
-        old_month_end_date = self.year + "." + str(int(day[1].split(".")[0]) - 1) + "." + day[1].split(".")[1]
-        old_month_range = DateRange(old_month_start_date, old_month_end_date).get_range()
-        self.amount.append((old_month_range, "上月"))
-        logger.debug(f"上个月范围: {old_month_range}")
+        if self.is_do:
+            logger.debug("上个月时间范围")
+            old_month_start_date = self.year + "." + str(int(day[0].split(".")[0]) - 1) + "." + day[0].split(".")[1]
+            old_month_end_date = self.year + "." + str(int(day[1].split(".")[0]) - 1) + "." + day[1].split(".")[1]
+            old_month_range = DateRange(old_month_start_date, old_month_end_date).get_range()
+            self.amount.append((old_month_range, "上月"))
+            logger.debug(f"上个月范围: {old_month_range}")
+        else:
+            logger.debug("不求环比")
 
         logger.debug("去年时间范围")
         old_year_start_date = str(int(self.year) - 1) + "." + day[0]
@@ -465,5 +486,5 @@ if __name__ == '__main__':
     old_sheet = "2021汇总"
     # sku = Sku('2022', summary_file, summary_sheet, source_file, source_sheet)
     # sku.start()
-    strain = Strain(None, "2022", summary_file, summary_sheet, source_file, source_sheet, old_file, old_sheet)
+    strain = Strain(True, None, "2022", summary_file, summary_sheet, source_file, source_sheet, old_file, old_sheet)
     strain.start()

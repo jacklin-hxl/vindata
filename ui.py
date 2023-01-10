@@ -110,7 +110,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
+        Form.setWindowTitle(_translate("Form", "Vinda"))
         self.mubansheet_label.setText(_translate("Form", "模板sheet"))
         self.muban_label.setText(_translate("Form", "模板文件路径,支持拖文件/手动选择文件"))
         self.zonshuju_label.setText(_translate("Form", "总数据文件路径，支持拖文件/手动选择文件"))

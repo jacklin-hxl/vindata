@@ -104,7 +104,7 @@ class Sku(Base):
             f.close()
             df = pandas.DataFrame()
             df.to_excel(self.RESULT_FILE_NAME, index=False)
-        writer = pandas.ExcelWriter(self.RESULT_FILE_NAME, mode="a")
+        writer = pandas.ExcelWriter(self.RESULT_FILE_NAME, engine='openpyxl', mode="a", if_sheet_exists='overlay')
         startCol = 0
         for i in self.ans:
             logger.debug(f"转存数据到 {self.RESULT_FILE_NAME} 中...")
@@ -333,7 +333,7 @@ class Strain(Base):
             f.close()
             df = pandas.DataFrame()
             df.to_excel(self.RESULT_FILE_NAME, index=False)
-        writer = pandas.ExcelWriter(self.RESULT_FILE_NAME, mode="a")
+        writer = pandas.ExcelWriter(self.RESULT_FILE_NAME, engine='openpyxl', mode="a", if_sheet_exists='overlay')
 
         startCol = 0
         for i in self.res_list:

@@ -10,3 +10,4 @@ dist
 *.log
 .idea/misc.xml
 .idea/dataProcess.iml
+.DS_Store

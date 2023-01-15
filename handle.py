@@ -23,7 +23,7 @@ class Base:
 
 
 class Sku(Base):
-    RESULT_FILE_NAME = "./sku.xlsx"
+    RESULT_FILE_NAME = "./result.xlsx"
 
     def __init__(self,
                  flag=None,
@@ -225,7 +225,7 @@ class Sku(Base):
         logger.debug("格式化数据 完成")
 
 class Strain(Base):
-    RESULT_FILE_NAME = "./strain.xlsx"
+    RESULT_FILE_NAME = "./result.xlsx"
 
     def __init__(self,
                  is_do=True,
